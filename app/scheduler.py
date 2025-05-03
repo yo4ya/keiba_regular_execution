@@ -37,7 +37,8 @@ def job(running_time, Race_ID):
         purchase_list=determine_whether_purchase_ticket(df_pred, odds_list)
         if purchase_list:
             logger.info(f"Purchase list determined for Race_ID: {Race_ID}: {purchase_list}")
-            send_slack_notify("購入馬券: "+str(purchase_list))
+            message = f"購入馬券: {purchase_list}\n出走時間: {running_time}\nレースID: {Race_ID}"
+            send_slack_notify(message, purchase_flag=True)
             betting(Race_ID, purchase_list)
         else:
             logger.info(f"No purchase tickets for Race_ID: {Race_ID}")

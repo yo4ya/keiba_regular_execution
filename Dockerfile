@@ -54,7 +54,7 @@ EXPOSE 8080
 #CMD ["gunicorn", "--bind", "0.0.0.0:8080", "main:app", "--reload"]
 
 # Pythonスクリプトを実行するコマンドを設定
-ENTRYPOINT ["python", "main.py"]
+# ENTRYPOINT ["python", "main.py"]
 
 # コンテナが終了しないようにする(デバッグ用)
-# CMD ["tail", "-f", "/dev/null"]
+CMD ["tail", "-f", "/dev/null"]

@@ -25,17 +25,22 @@ def send_slack_notify(notification_message):
     data = {'message': f'message: \n\n{notification_message}'}
     requests.post(line_notify_api, headers = headers, data = data)
     
-def send_slack_notify(notification_message, webhook_url=None):
+def send_slack_notify(notification_message, webhook_url=None, purchase_flag=False):
     """
     Slackに通知する
     
     Args:
         notification_message (any): 送信するメッセージ（文字列、DataFrame、例外オブジェクトなど）
         webhook_url (str, optional): SlackのWebhook URL。指定がない場合はデフォルト値を使用。
+        purchase_flag (bool, optional): Trueの場合、購入用のWebhook URLにメッセージを送信する。デフォルトはFalse。
     """
     if webhook_url is None:
-        # Slackから取得したWebhook URLをここに設定
-        webhook_url = 'https://hooks.slack.com/services/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'
+        if purchase_flag:
+            # 購入用のWebhook URL
+            webhook_url = 'https://hooks.slack.com/services/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'
+        else:
+            # 通常のWebhook URL
+            webhook_url = 'https://hooks.slack.com/services/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'
     
     # メッセージの種類に応じた処理
     if isinstance(notification_message, pd.DataFrame):

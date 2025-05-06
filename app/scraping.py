@@ -286,7 +286,7 @@ def current_data(year, place, race_count, day, race_num):
     for i, Jockey_soup in enumerate(Jockey_soups):
         if i in cancel_umaban_list:  # 出走しなかった馬の例外処理
             continue
-        time.sleep(2)
+        time.sleep(5)
         Jockey_url=Jockey_soup.find('a')['href']
         Jockey_url=Jockey_url.replace('/recent','')
         Jockey_res=requests.get(Jockey_url, headers=headers)
@@ -317,7 +317,7 @@ def current_data(year, place, race_count, day, race_num):
             Jockey_Prizes_list.append(int(total_prize_money/average_count))
 
     # 調教
-    time.sleep(2)
+    time.sleep(5)
 
     TRAINING_URL = ["https://race.netkeiba.com/race/oikiri.html?race_id={}&type=3&rf=shutuba_submenu".format(
         ''.join(race_id)) for race_id in race_ids]
@@ -473,7 +473,7 @@ def past_data(year, place, race_count, day, race_num):
     mf_Prize_list = []
     for url in URLs_list:
 
-        time.sleep(2)
+        time.sleep(5)
         print(str(Horse_Count)+'頭目 : '+Horse_Names_list[Horse_Count-1])
         Horse_Count += 1
 
@@ -582,7 +582,7 @@ def past_data(year, place, race_count, day, race_num):
                                                        28].get_text().replace('\xa0', ''))
 
 # 父親の情報
-        time.sleep(2)
+        time.sleep(5)
         URL_f = soup_past.find_all('td', class_='b_ml')[0].find('a')
         URL_f = URL_f.get('href')
         URL_f = URL_f.replace('ped', 'result')
@@ -614,7 +614,7 @@ def past_data(year, place, race_count, day, race_num):
         f_Prize_list.append(f_Prize_sum)
 
         # 母親の情報
-        time.sleep(2)
+        time.sleep(5)
         URL_m = soup_past.find_all('td', class_='b_fml')[1].find('a')
         URL_m = URL_m.get('href')
         URL_m = URL_m.replace('ped', 'result')
@@ -646,7 +646,7 @@ def past_data(year, place, race_count, day, race_num):
         m_Prize_list.append(m_Prize_sum)
 
         # 母方の父親の情報
-        time.sleep(2)
+        time.sleep(5)
         URL_mf = soup_past.find_all('td', class_='b_fml')[1].find('a')
         URL_mf = URL_mf.get('href')
         URL_mf = URL_mf.replace('ped', 'result')

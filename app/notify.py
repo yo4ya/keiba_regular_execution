@@ -37,10 +37,10 @@ def send_slack_notify(notification_message, webhook_url=None, purchase_flag=Fals
     if webhook_url is None:
         if purchase_flag:
             # 購入用のWebhook URL
-            webhook_url = 'https://hooks.slack.com/services/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'
+            webhook_url = 'https://hooks.slack.com/services/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'
         else:
             # 通常のWebhook URL
-            webhook_url = 'https://hooks.slack.com/services/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'
+            webhook_url = 'https://hooks.slack.com/services/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'
     
     # メッセージの種類に応じた処理
     if isinstance(notification_message, pd.DataFrame):

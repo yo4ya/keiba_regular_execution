@@ -4,6 +4,7 @@ import json
 import traceback
 
 from flask import Flask
+from config import SLACK_WEBHOOK_NORMAL_URL, SLACK_WEBHOOK_PURCHASE_URL
 
 app = Flask(__name__)
 
@@ -37,10 +38,10 @@ def send_slack_notify(notification_message, webhook_url=None, purchase_flag=Fals
     if webhook_url is None:
         if purchase_flag:
             # 購入用のWebhook URL
-            webhook_url = 'https://hooks.slack.com/services/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'
+            webhook_url = SLACK_WEBHOOK_PURCHASE_URL
         else:
             # 通常のWebhook URL
-            webhook_url = 'https://hooks.slack.com/services/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'
+            webhook_url = SLACK_WEBHOOK_NORMAL_URL
     
     # メッセージの種類に応じた処理
     if isinstance(notification_message, pd.DataFrame):

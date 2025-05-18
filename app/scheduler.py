@@ -73,4 +73,5 @@ def scheduler(Race_ID_list, pred_time_list, running_time_list):
             break
 
 if __name__ == "__main__":
-    job(None, "202506030502")
+    # job(None, "202506030502")
+    betting("202505020812", [9])

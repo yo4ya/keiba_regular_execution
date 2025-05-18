@@ -90,81 +90,149 @@ def fukusho_preprocess(odds_list):
     return odds_list
 
 def label_encoding(df, save_label_encoder=False):
-    # ラベルエンコード
+    """
+    カテゴリカルな特徴量をラベルエンコーディングする
+    空文字列や未知のラベルにも対応
+    """
+    # ラベルエンコード対象のカラムグループ
     cat_cols = ['Sex', 'Weather', 'Training', 'Horse_House']
     condition_cols = ['Condition', 'Condition1', 'Condition2', 'Condition3']
     place_cols = ['Place1', 'Place2', 'Place3']
     course_cols = ['Course', 'Course1', 'Course2', 'Course3']
+    
+    # 共通の前処理: 空文字列と欠損値を'missing'に置き換え
+    for cols in [cat_cols, condition_cols, place_cols, course_cols]:
+        for col in cols:
+            if col in df.columns:
+                df[col] = df[col].replace('', 'missing').fillna('missing')
 
+    # エンコーダを新規作成して保存するモード
     if save_label_encoder:
         # 各列に対してラベルエンコーダを作成し、保存
         for col in cat_cols:
-            df[col].fillna('missing', inplace=True)  # 欠損値を 'missing' に置換
-            le = LabelEncoder()
-            le.fit(df[col])
-
-            # ラベルエンコーダを保存
-            with open(f'./label_encoder/label_encoder_{col}.pkl', 'wb') as file:
-                pickle.dump(le, file)
+            if col in df.columns:
+                le = LabelEncoder()
+                le.fit(df[col])
+                
+                # ディレクトリが存在しない場合は作成
+                import os
+                os.makedirs('./label_encoder', exist_ok=True)
+                
+                # ラベルエンコーダを保存
+                with open(f'./label_encoder/label_encoder_{col}.pkl', 'wb') as file:
+                    pickle.dump(le, file)
 
         # Condition系の列に対して一つのラベルエンコーダを作成し、保存
-        df[condition_cols] = df[condition_cols].fillna('missing')
-        le_condition = LabelEncoder()
-        le_condition.fit(df[condition_cols].values.flatten())
-
-        with open(f'./label_encoder/label_encoder_Condition.pkl', 'wb') as file:
-            pickle.dump(le_condition, file)
+        all_condition_values = []
+        for col in condition_cols:
+            if col in df.columns:
+                all_condition_values.extend(df[col].values)
+                
+        if all_condition_values:  # リストが空でない場合のみ処理
+            le_condition = LabelEncoder()
+            le_condition.fit(all_condition_values)
+            
+            with open(f'./label_encoder/label_encoder_Condition.pkl', 'wb') as file:
+                pickle.dump(le_condition, file)
 
         # Place系の列に対して一つのラベルエンコーダを作成し、保存
-        df[place_cols] = df[place_cols].fillna('missing')
-        le_place = LabelEncoder()
-        le_place.fit(df[place_cols].values.flatten())
-
-        with open(f'./label_encoder/label_encoder_Place.pkl', 'wb') as file:
-            pickle.dump(le_place, file)
+        all_place_values = []
+        for col in place_cols:
+            if col in df.columns:
+                all_place_values.extend(df[col].values)
+                
+        if all_place_values:  # リストが空でない場合のみ処理
+            le_place = LabelEncoder()
+            le_place.fit(all_place_values)
+            
+            with open(f'./label_encoder/label_encoder_Place.pkl', 'wb') as file:
+                pickle.dump(le_place, file)
 
         # Course系の列に対して一つのラベルエンコーダを作成し、保存
-        df[course_cols] = df[course_cols].fillna('missing')
-        le_course = LabelEncoder()
-        le_course.fit(df[course_cols].values.flatten())
+        all_course_values = []
+        for col in course_cols:
+            if col in df.columns:
+                all_course_values.extend(df[col].values)
+                
+        if all_course_values:  # リストが空でない場合のみ処理
+            le_course = LabelEncoder()
+            le_course.fit(all_course_values)
+            
+            with open(f'./label_encoder/label_encoder_Course.pkl', 'wb') as file:
+                pickle.dump(le_course, file)
 
-        with open(f'./label_encoder/label_encoder_Course.pkl', 'wb') as file:
-            pickle.dump(le_course, file)
-
+    # 既存のエンコーダを使って変換するモード
     # 各列に対してラベルエンコーダを適用
     for col in cat_cols:
-        df[col].fillna('missing', inplace=True)
-
-        with open(f'./label_encoder/label_encoder_{col}.pkl', 'rb') as file:
-            le = pickle.load(file)
-        df[col] = le.transform(df[col])
+        if col in df.columns:
+            try:
+                with open(f'./label_encoder/label_encoder_{col}.pkl', 'rb') as file:
+                    le = pickle.load(file)
+                    
+                # 未知のクラスがあるか確認
+                unknown_classes = set(df[col].unique()) - set(le.classes_)
+                if unknown_classes:
+                    # 新しいクラスを追加
+                    le.classes_ = np.append(le.classes_, list(unknown_classes))
+                    
+                # 変換を実行
+                df[col] = le.transform(df[col])
+            except FileNotFoundError:
+                print(f"警告: {col}のエンコーダファイルが見つかりません。スキップします。")
 
     # Condition系の列に対してラベルエンコーダを適用
-    df[condition_cols] = df[condition_cols].fillna('missing')
-
-    with open(f'./label_encoder/label_encoder_Condition.pkl', 'rb') as file:
-        le_condition = pickle.load(file)
-
-    for col in condition_cols:
-        df[col] = le_condition.transform(df[col])
+    try:
+        with open(f'./label_encoder/label_encoder_Condition.pkl', 'rb') as file:
+            le_condition = pickle.load(file)
+            
+        for col in condition_cols:
+            if col in df.columns:
+                # 未知のクラスがあるか確認
+                unknown_classes = set(df[col].unique()) - set(le_condition.classes_)
+                if unknown_classes:
+                    # 新しいクラスを追加
+                    le_condition.classes_ = np.append(le_condition.classes_, list(unknown_classes))
+                
+                # 変換を実行
+                df[col] = le_condition.transform(df[col])
+    except FileNotFoundError:
+        print("警告: Conditionエンコーダファイルが見つかりません。スキップします。")
 
     # Place系の列に対してラベルエンコーダを適用
-    df[place_cols] = df[place_cols].fillna('missing')
-
-    with open(f'./label_encoder/label_encoder_Place.pkl', 'rb') as file:
-        le_place = pickle.load(file)
-
-    for col in place_cols:
-        df[col] = le_place.transform(df[col])
+    try:
+        with open(f'./label_encoder/label_encoder_Place.pkl', 'rb') as file:
+            le_place = pickle.load(file)
+            
+        for col in place_cols:
+            if col in df.columns:
+                # 未知のクラスがあるか確認
+                unknown_classes = set(df[col].unique()) - set(le_place.classes_)
+                if unknown_classes:
+                    # 新しいクラスを追加
+                    le_place.classes_ = np.append(le_place.classes_, list(unknown_classes))
+                
+                # 変換を実行
+                df[col] = le_place.transform(df[col])
+    except FileNotFoundError:
+        print("警告: Placeエンコーダファイルが見つかりません。スキップします。")
 
     # Course系の列に対してラベルエンコーダを適用
-    df[course_cols] = df[course_cols].fillna('missing')
-
-    with open(f'./label_encoder/label_encoder_Course.pkl', 'rb') as file:
-        le_course = pickle.load(file)
-
-    for col in course_cols:
-        df[col] = le_course.transform(df[col])
+    try:
+        with open(f'./label_encoder/label_encoder_Course.pkl', 'rb') as file:
+            le_course = pickle.load(file)
+            
+        for col in course_cols:
+            if col in df.columns:
+                # 未知のクラスがあるか確認
+                unknown_classes = set(df[col].unique()) - set(le_course.classes_)
+                if unknown_classes:
+                    # 新しいクラスを追加
+                    le_course.classes_ = np.append(le_course.classes_, list(unknown_classes))
+                
+                # 変換を実行
+                df[col] = le_course.transform(df[col])
+    except FileNotFoundError:
+        print("警告: Courseエンコーダファイルが見つかりません。スキップします。")
     
     return df
 

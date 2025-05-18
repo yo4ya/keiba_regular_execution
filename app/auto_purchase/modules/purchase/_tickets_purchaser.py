@@ -45,7 +45,7 @@ class TicketsPurchaser:
         # 馬券の購入枚数
         self.ticket_nm = 10
         # seleniumの待機時間[sec]
-        self.wait_sec = 2
+        self.wait_sec = 5
     # 自作関数
     def judge_day_of_week(self, date_nm):
         date_dt = datetime.datetime.strptime(str(date_nm), "%Y-%m-%d")

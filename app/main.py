@@ -31,7 +31,7 @@ def set_pred_time_list(race_time_list):
         time_obj = datetime.combine(now, race_time)
         
         # Subtract timedelta
-        new_time_obj = time_obj - timedelta(minutes=5)
+        new_time_obj = time_obj - timedelta(minutes=10)
         
         # Convert back to time object and append to list
         pred_time_list.append(new_time_obj.time())
